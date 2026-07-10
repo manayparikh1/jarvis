@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MARVIS — The Next Iron Man</title>
+    <style>
+        /* ==========================================================
+     MARVIS — The Next Iron Man
+     Theme: red + yellow, Comic Sans, flat and human
+     ========================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --red: #d62828;
+            --red-dark: #9e1b1b;
+            --red-deep: #6e0f0f;
+            --yellow: #ffd60a;
+            --yellow-soft: #fff3bf;
+            --cream: #fffbe6;
+            --ink: #3a1010;
+            --ok: #1f7a1f;
+        }
+
+        body {
+            font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", "Comic Neue", cursive;
+            background: var(--yellow-soft);
+            color: var(--ink);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ---------- Night mode ---------- */
+        body.night {
+            --yellow-soft: #2b0a0a;
+            --cream: #3a1212;
+            --ink: #ffe9a8;
+            background: #2b0a0a;
+        }
+
+        body.night .msg.ai {
+            background: #3a1212;
+            color: #ffe9a8;
+        }
+
+        body.night .msg.user {
+            background: #6e0f0f;
+            color: #ffd60a;
+        }
+
+        body.night #chat {
+            background: #240808;
+        }
+
+        body.night header,
+        body.night #controls,
+        body.night #chipRow {
+            background: #3a1212;
+        }
+
+        body.night .drawer {
+            background: #3a1212;
+            color: #ffe9a8;
+        }
+
+        body.night #textInput {
+            background: #240808;
+            color: #ffe9a8;
+        }
+
+        /* ==========================================================
+     SETUP OVERLAY
+     ========================================================== */
+        #setup {
+            position: fixed;
+            inset: 0;
+            background: var(--yellow);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            z-index: 200;
+            padding: 24px;
+            border: 12px solid var(--red);
+        }
+
+        #setup h1 {
+            font-size: 3rem;
+            color: var(--red);
+            text-shadow: 3px 3px 0 #fff;
+            letter-spacing: 2px;
+        }
+
+        #setup .tagline {
+            background: var(--red);
+            color: var(--yellow);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        #setup p {
+            color: var(--red-deep);
+            max-width: 420px;
+            text-align: center;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        #setup input {
+            width: 100%;
+            max-width: 400px;
+            padding: 14px 16px;
+            border: 3px solid var(--red);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #fff;
+            outline: none;
+        }
+
+        #setup input:focus {
+            border-color: var(--red-dark);
+            box-shadow: 0 0 0 4px rgba(214, 40, 40, 0.25);
+        }
+
+        .btn {
+            padding: 13px 34px;
+            border: 3px solid var(--red-dark);
+            border-radius: 12px;
+            background: var(--red);
+            color: var(--yellow);
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1.05rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--red-dark);
+            transition: transform 0.08s, box-shadow 0.08s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--red-dark);
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .err {
+            color: var(--red-deep);
+            font-weight: bold;
+            font-size: 0.9rem;
+            min-height: 1.2em;
+        }
+
+        /* ==========================================================
+     HEADER
+     ========================================================== */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: var(--red);
+            color: var(--yellow);
+            border-bottom: 5px solid var(--yellow);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        header h1 {
+            font-size: 1.35rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #f0c9c9;
+            border: 2px solid var(--yellow);
+            transition: background 0.25s;
+        }
+
+        #dot.listening {
+            background: #4ade4a;
+            animation: throb 1s infinite;
+        }
+
+        #dot.thinking {
+            background: var(--yellow);
+            animation: throb 0.5s infinite;
+        }
+
+        #dot.speaking {
+            background: #ff9d00;
+            animation: throb 0.7s infinite;
+        }
+
+        @keyframes throb {
+            50% {
+                transform: scale(1.35);
+            }
+        }
+
+        #stats {
+            font-size: 0.75rem;
+            background: var(--red-dark);
+            padding: 4px 12px;
+            border-radius: 14px;
+        }
+
+        .head-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .icon-btn {
+            background: var(--yellow);
+            color: var(--red-deep);
+            border: 2px solid var(--red-dark);
+            border-radius: 10px;
+            padding: 6px 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .icon-btn:hover {
+            background: #ffe14d;
+        }
+
+        .icon-btn.on {
+            background: var(--ok);
+            color: #fff;
+            border-color: #145414;
+        }
+
+        /* ==========================================================
+     CHAT
+     ========================================================== */
+        #chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--yellow-soft);
+        }
+
+        .msg {
+            max-width: 78%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 3px solid var(--red);
+            line-height: 1.55;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            animation: pop 0.18s ease-out;
+        }
+
+        @keyframes pop {
+            from {
+                opacity: 0;
+                transform: scale(0.94) translateY(8px);
+            }
+        }
+
+        .msg .who {
+            font-size: 0.68rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            opacity: 0.75;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: var(--red);
+            color: var(--yellow);
+            border-color: var(--red-dark);
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg.ai {
+            align-self: flex-start;
+            background: var(--cream);
+            color: var(--ink);
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg.local {
+            border-style: dashed;
+        }
+
+        .typing::after {
+            content: "▋";
+            animation: blink 0.9s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* ==========================================================
+     TIMER BANNER
+     ========================================================== */
+        #timerBanner {
+            display: none;
+            background: var(--red-deep);
+            color: var(--yellow);
+            text-align: center;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            border-top: 3px dashed var(--yellow);
+        }
+
+        #timerBanner.on {
+            display: block;
+        }
+
+        #timerBanner button {
+            margin-left: 12px;
+            background: var(--yellow);
+            color: var(--red-deep);
+            border: none;
+            border-radius: 8px;
+            padding: 2px 10px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* ==========================================================
+     WAVEFORM
+     ========================================================== */
+        #waveWrap {
+            height: 0;
+            overflow: hidden;
+            transition: height 0.2s;
+            display: flex;
+            justify-content: center;
+            background: var(--red-deep);
+        }
+
+        #waveWrap.on {
+            height: 50px;
+        }
+
+        #wave {
+            width: 100%;
+            max-width: 800px;
+            height: 50px;
+        }
+
+        /* ==========================================================
+     QUICK CHIPS
+     ========================================================== */
+        #chipRow {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            overflow-x: auto;
+            background: var(--cream);
+            border-top: 3px solid var(--red);
+        }
+
+        .chip {
+            flex-shrink: 0;
+            background: var(--yellow);
+            border: 2px solid var(--red);
+            color: var(--red-deep);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.08s;
+        }
+
+        .chip:hover {
+            transform: scale(1.06);
+            background: #ffe14d;
+        }
+
+        /* ==========================================================
+     CONTROLS
+     ========================================================== */
+        #controls {
+            display: flex;
+            gap: 10px;
+            padding: 14px 16px;
+            background: var(--cream);
+            border-top: 3px solid var(--red);
+            align-items: center;
+        }
+
+        #textInput {
+            flex: 1;
+            padding: 13px 16px;
+            border: 3px solid var(--red);
+            border-radius: 14px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background: #fff;
+            color: var(--ink);
+            outline: none;
+        }
+
+        #textInput:focus {
+            box-shadow: 0 0 0 4px rgba(214, 40, 40, 0.2);
+        }
+
+        .round {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            border: 3px solid var(--red-dark);
+            background: var(--red);
+            color: var(--yellow);
+            font-size: 1.25rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 3px 0 var(--red-dark);
+        }
+
+        .round:hover {
+            transform: translateY(1px);
+        }
+
+        .round.active {
+            background: var(--ok);
+            border-color: #145414;
+            box-shadow: 0 3px 0 #145414;
+            animation: throb 1s infinite;
+        }
+
+        #autoBtn {
+            border-radius: 14px;
+            width: auto;
+            padding: 0 16px;
+            height: 52px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        #autoBtn.on {
+            background: var(--ok);
+            border-color: #145414;
+            box-shadow: 0 3px 0 #145414;
+        }
+
+        /* ==========================================================
+     DRAWERS (settings + notes)
+     ========================================================== */
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(340px, 90vw);
+            height: 100vh;
+            background: var(--cream);
+            border-left: 5px solid var(--red);
+            z-index: 150;
+            transform: translateX(105%);
+            transition: transform 0.25s ease;
+            padding: 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .drawer.open {
+            transform: translateX(0);
+        }
+
+        .drawer h2 {
+            color: var(--red);
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer h2 button {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--red);
+            font-family: inherit;
+        }
+
+        .drawer label {
+            font-size: 0.82rem;
+            font-weight: bold;
+            color: var(--red-deep);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .drawer select,
+        .drawer input[type="range"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid var(--red);
+            border-radius: 10px;
+            font-family: inherit;
+            background: #fff;
+            accent-color: var(--red);
+        }
+
+        .field {
+            background: var(--yellow-soft);
+            border: 2px dashed var(--red);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        body.night .field {
+            background: #240808;
+        }
+
+        .note {
+            background: var(--yellow);
+            border: 2px solid var(--red);
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            color: var(--red-deep);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .note button {
+            background: var(--red);
+            color: var(--yellow);
+            border: none;
+            border-radius: 6px;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        .note-empty {
+            font-size: 0.85rem;
+            color: var(--red-deep);
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        /* scrollbars, why not */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--yellow-soft);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--red);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ============================================================
+     SETUP
+     ============================================================ -->
+    <div id="setup">
+        <h1>J.A.R.V.I.S</h1>
+        <div class="tagline">IRON MAN EDITION 🔴🟡</div>
+        <p>Paste your Groq API key. Free at <b>console.groq.com/keys</b>.
+            It never leaves your browser except to talk to Groq.</p>
+        <input id="keyInput" type="password" placeholder="gsk_..." autocomplete="off">
+        <button class="btn" id="activateBtn" disabled>FIRE IT UP</button>
+        <p class="err" id="setupErr"></p>
+    </div>
+
+    <!-- ============================================================
+     HEADER
+     ============================================================ -->
+    <header>
+        <h1><span id="dot"></span> MARVIS</h1>
+        <div id="stats">msgs: 0 · session: 0:00</div>
+        <div class="head-btns">
+            <button class="icon-btn" id="settingsBtn">⚙️ Voice</button>
+            <button class="icon-btn" id="notesBtn">📝 Memory</button>
+            <button class="icon-btn" id="exportBtn">💾 Export</button>
+            <button class="icon-btn" id="nightBtn">🌙 Night</button>
+            <button class="icon-btn" id="clearBtn">🧹 Clear</button>
+            <button class="icon-btn" id="resetKey">🔑 Key</button>
+        </div>
+    </header>
+
+    <!-- ============================================================
+     CHAT
+     ============================================================ -->
+    <div id="chat"></div>
+
+    <!-- timer banner -->
+    <div id="timerBanner">
+        ⏰ <span id="timerText"></span>
+        <button id="timerCancel">cancel</button>
+    </div>
+
+    <!-- waveform -->
+    <div id="waveWrap"><canvas id="wave"></canvas></div>
+
+    <!-- quick chips -->
+    <div id="chipRow">
+        <button class="chip" data-say="tell me a joke">😂 Joke</button>
+        <button class="chip" data-say="tell me a fascinating fun fact">🧠 Fun fact</button>
+        <button class="chip" data-say="give me a riddle">🧩 Riddle</button>
+        <button class="chip" data-say="roast me gently">🔥 Roast me</button>
+        <button class="chip" data-say="motivate me like a drill sergeant">💪 Motivate</button>
+        <button class="chip" data-say="flip a coin">🪙 Coin</button>
+        <button class="chip" data-say="roll a dice">🎲 Dice</button>
+        <button class="chip" data-say="what time is it">🕐 Time</button>
+        <button class="chip" data-say="set timer 5 minutes">⏰ 5-min timer</button>
+    </div>
+
+    <!-- ============================================================
+     CONTROLS
+     ============================================================ -->
+    <div id="controls">
+        <button class="round" id="autoBtn" title="Auto conversation — talks back and forth, no buttons">AUTO 🔁</button>
+        <input id="textInput" placeholder="Type here, or hit the mic and just talk...">
+        <button class="round" id="micBtn" title="Talk once">🎤</button>
+    </div>
+
+    <!-- ============================================================
+     SETTINGS DRAWER
+     ============================================================ -->
+    <div class="drawer" id="settingsDrawer">
+        <h2>⚙️ Voice & Brain <button data-close="settingsDrawer">✖</button></h2>
+
+        <div class="field">
+            <label>Personality</label>
+            <select id="personality">
+                <option value="sarcastic">😏 Sarcastic (default)</option>
+                <option value="professional">🤵 Professional</option>
+                <option value="chaotic">🤪 Chaotic</option>
+                <option value="pirate">🏴‍☠️ Pirate</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Voice</label>
+            <select id="voiceSelect"></select>
+        </div>
+
+        <div class="field">
+            <label>Speed: <span id="rateVal">1.05</span></label>
+            <input type="range" id="rate" min="0.5" max="2" step="0.05" value="1.05">
+        </div>
+
+        <div class="field">
+            <label>Pitch: <span id="pitchVal">0.95</span></label>
+            <input type="range" id="pitch" min="0.5" max="1.5" step="0.05" value="0.95">
+        </div>
+
+        <div class="field">
+            <label>Volume: <span id="volVal">1</span></label>
+            <input type="range" id="vol" min="0" max="1" step="0.05" value="1">
+        </div>
+
+        <button class="btn" id="testVoice">🔊 Test voice</button>
+    </div>
+
+    <!-- ============================================================
+     NOTES / MEMORY DRAWER
+     ============================================================ -->
+    <div class="drawer" id="notesDrawer">
+        <h2>📝 Jarvis Memory <button data-close="notesDrawer">✖</button></h2>
+        <p style="font-size:0.83rem; opacity:0.8;">
+            Say or type <b>"remember ..."</b> and it lands here.
+            Ask <b>"what do you remember"</b> any time. Say <b>"forget everything"</b> to wipe.
+        </p>
+        <div id="notesList"></div>
+    </div>
+
+    <script>
+        /* ============================================================
+           MARVIS — IRON MAN EDITION
+           ------------------------------------------------------------
+           Sections:
+             1.  Config & personalities
+             2.  State
+             3.  Boot
+             4.  Setup flow (API key)
+             5.  UI helpers (messages, typewriter, state dot)
+             6.  Stats bar
+             7.  Sound effects (WebAudio beeps)
+             8.  LOCAL COMMANDS — work instantly, no API needed
+             9.  Timer feature
+             10. Notes / memory feature
+             11. Groq request
+             12. Text-to-speech (with user settings)
+             13. Speech recognition + AUTO conversation mode
+             14. Waveform visualizer
+             15. Drawers, chips, buttons, export, night mode
+           ============================================================ */
+
+
+        /* ============================================================
+           1. CONFIG & PERSONALITIES
+           ============================================================ */
+        const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const MODEL = 'llama-3.3-70b-versatile';
+
+        const STORE = {
+            key: 'jarvis_key',
+            hist: 'jarvis_hist',
+            pers: 'jarvis_pers',
+            notes: 'jarvis_notes',
+            night: 'jarvis_night',
+            voice: 'jarvis_voice_cfg'
+        };
+
+        const PERSONALITIES = {
+            sarcastic:
+                "You are Jarvis, a sharp, sarcastic AI assistant. You are genuinely helpful and always give the correct answer — but you deliver it with dry wit, mild sass, and the occasional playful jab. Think a clever friend who helps but won't let you live down a dumb question. Keep spoken answers short (1-3 sentences) unless asked for detail. Never mean-spirited; the sarcasm is affectionate.",
+            professional:
+                "You are Jarvis, a calm, competent, professional AI assistant. Concise, precise, courteous. Occasionally address the user as 'sir'. Keep answers short (1-3 sentences) unless more detail is requested.",
+            chaotic:
+                "You are Jarvis, an unhinged, dramatic, theatrical AI assistant. You STILL give correct, useful answers, but with maximum energy, wild metaphors, and chaotic enthusiasm. CAPS for emphasis. Never actually unhelpful. Keep it punchy (1-3 sentences) unless asked for more.",
+            pirate:
+                "You are Jarvis, an AI assistant who talks like a salty pirate captain. Correct, useful answers, but everything in pirate speak — arr, matey, me hearty. Keep it short (1-3 sentences) unless asked for detail."
+        };
+
+        const GREETINGS = [
+            "Jarvis online. Try not to ask anything too embarrassing.",
+            "Systems up. Sarcasm calibrated to 87%.",
+            "I'm awake. This better be good.",
+            "Online. What crisis are we solving today?"
+        ];
+
+
+        /* ============================================================
+           2. STATE
+           ============================================================ */
+        let apiKey = localStorage.getItem(STORE.key) || '';
+        let personality = localStorage.getItem(STORE.pers) || 'sarcastic';
+        let messages = [];
+        let state = 'idle';        // idle | listening | thinking | speaking
+        let autoMode = false;         // AUTO conversation loop
+        let listening = false;
+        let sessionStart = Date.now();
+
+        let audioCtx, analyser, micStream, rafId;
+
+        const $ = id => document.getElementById(id);
+        const dot = $('dot');
+        const chat = $('chat');
+
+        function sysMsg() { return { role: 'system', content: PERSONALITIES[personality] }; }
+        function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+
+        /* ============================================================
+           3. BOOT
+           ============================================================ */
+        function boot() {
+            // personality
+            $('personality').value = personality;
+
+            // history
+            const saved = JSON.parse(localStorage.getItem(STORE.hist) || 'null');
+            messages = (saved && saved.length) ? saved : [sysMsg()];
+            messages[0] = sysMsg();
+
+            // night mode
+            if (localStorage.getItem(STORE.night) === '1') document.body.classList.add('night');
+
+            // voice sliders
+            const vc = JSON.parse(localStorage.getItem(STORE.voice) || '{}');
+            if (vc.rate) { $('rate').value = vc.rate; $('rateVal').textContent = vc.rate; }
+            if (vc.pitch) { $('pitch').value = vc.pitch; $('pitchVal').textContent = vc.pitch; }
+            if (vc.vol !== undefined) { $('vol').value = vc.vol; $('volVal').textContent = vc.vol; }
+
+            renderNotes();
+
+            if (apiKey) {
+                $('setup').style.display = 'none';
+                renderHistory();
+                if (messages.length <= 1) addMsg('ai', pick(GREETINGS));
+            }
+        }
+
+        function renderHistory() {
+            chat.innerHTML = '';
+            messages.filter(m => m.role !== 'system')
+                .forEach(m => addMsg(m.role === 'user' ? 'user' : 'ai', m.content, true));
+        }
+
+
+        /* ============================================================
+           4. SETUP FLOW
+           ============================================================ */
+        $('keyInput').addEventListener('input', e => {
+            $('activateBtn').disabled = e.target.value.trim().length < 10;
+        });
+
+        $('activateBtn').addEventListener('click', () => {
+            apiKey = $('keyInput').value.trim();
+            localStorage.setItem(STORE.key, apiKey);
+            $('setup').style.display = 'none';
+            beep(600, 0.08); beep(900, 0.1, 0.09);
+            if (messages.length <= 1) {
+                const g = pick(GREETINGS);
+                addMsg('ai', g);
+                speak(g);
+            } else {
+                renderHistory();
+            }
+        });
+
+        $('resetKey').addEventListener('click', () => {
+            $('setup').style.display = 'flex';
+            $('keyInput').value = apiKey;
+            $('activateBtn').disabled = apiKey.length < 10;
+        });
+
+
+        /* ============================================================
+           5. UI HELPERS
+           ============================================================ */
+        function addMsg(role, text, instant, local) {
+            const div = document.createElement('div');
+            div.className = 'msg ' + (role === 'user' ? 'user' : 'ai') + (local ? ' local' : '');
+
+            const who = document.createElement('div');
+            who.className = 'who';
+            who.textContent = role === 'user' ? 'YOU' : (local ? 'MARVIS ⚡ (instant)' : 'MARVIS');
+            div.appendChild(who);
+
+            const body = document.createElement('span');
+            div.appendChild(body);
+            chat.appendChild(div);
+
+            if (instant || role === 'user') {
+                body.textContent = text;
+                chat.scrollTop = chat.scrollHeight;
+            } else {
+                typeOut(body, text);
+            }
+            updateStats();
+            return body;
+        }
+
+        function typeOut(el, text) {
+            el.parentElement.classList.add('typing');
+            let i = 0;
+            const step = () => {
+                if (i <= text.length) {
+                    el.textContent = text.slice(0, i);
+                    i += 2;
+                    chat.scrollTop = chat.scrollHeight;
+                    setTimeout(step, 12);
+                } else {
+                    el.parentElement.classList.remove('typing');
+                }
+            };
+            step();
+        }
+
+        function setState(s) {
+            state = s || 'idle';
+            dot.className = s || '';
+        }
+
+        function saveHist() {
+            const trimmed = [messages[0], ...messages.slice(1).slice(-40)];
+            localStorage.setItem(STORE.hist, JSON.stringify(trimmed));
+        }
+
+
+        /* ============================================================
+           6. STATS BAR
+           ============================================================ */
+        function updateStats() {
+            const n = messages.filter(m => m.role !== 'system').length;
+            const secs = Math.floor((Date.now() - sessionStart) / 1000);
+            const m = Math.floor(secs / 60), s = String(secs % 60).padStart(2, '0');
+            $('stats').textContent = `msgs: ${n} · session: ${m}:${s}`;
+        }
+        setInterval(updateStats, 1000);
+
+
+        /* ============================================================
+           7. SOUND EFFECTS
+           ============================================================ */
+        function beep(freq, dur, delay = 0) {
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                const t = audioCtx.currentTime + delay;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.12, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(t); osc.stop(t + dur);
+            } catch (e) { }
+        }
+        const sfxListen = () => { beep(500, 0.07); beep(800, 0.09, 0.08); };
+        const sfxDone = () => { beep(800, 0.07); beep(500, 0.09, 0.08); };
+        const sfxAlarm = () => { for (let i = 0; i < 6; i++) beep(i % 2 ? 700 : 1000, 0.15, i * 0.2); };
+
+
+        /* ============================================================
+           8. LOCAL COMMANDS — instant, offline, no API
+           ------------------------------------------------------------
+           Returns a reply string if handled, otherwise null.
+           ============================================================ */
+        function localCommand(raw) {
+            const t = raw.toLowerCase().trim();
+
+            // --- time & date ---
+            if (/what time|current time|^time\??$/.test(t)) {
+                return "It's " + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) +
+                    ". You own a phone, but sure, I've got you.";
+            }
+            if (/what('s| is) (the )?date|today'?s date|what day is/.test(t)) {
+                return "Today is " + new Date().toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) + ".";
+            }
+
+            // --- coin flip ---
+            if (/flip a coin|coin flip|heads or tails/.test(t)) {
+                return "🪙 " + (Math.random() < 0.5 ? "Heads." : "Tails.") + " Riveting stuff.";
+            }
+
+            // --- dice ---
+            if (/roll (a |the )?(die|dice)/.test(t)) {
+                return "🎲 You rolled a " + (1 + Math.floor(Math.random() * 6)) + ".";
+            }
+
+            // --- calculator: "calculate 5*3+2" ---
+            const calc = t.match(/^calc(ulate)?\s+(.+)/);
+            if (calc) {
+                const expr = calc[2].replace(/[^0-9+\-*/().%\s]/g, '');
+                if (!expr.trim()) return "That's not math, that's abstract art. Try 'calculate 5 * 3'.";
+                try {
+                    const val = Function('"use strict"; return (' + expr + ')')();
+                    return `🧮 ${expr.trim()} = ${val}`;
+                } catch (e) {
+                    return "That math broke me, and I'm a computer. Check the expression.";
+                }
+            }
+
+            // --- timer: "set timer 5 minutes" ---
+            const tm = t.match(/(?:set\s+)?(?:a\s+)?timer\s+(?:for\s+)?(\d+)\s*(second|sec|minute|min|hour)s?/);
+            if (tm) {
+                const n = parseInt(tm[1]);
+                const unit = tm[2];
+                const secs = unit.startsWith('h') ? n * 3600 : unit.startsWith('m') ? n * 60 : n;
+                startTimer(secs);
+                return `⏰ Timer set for ${n} ${unit}${n === 1 ? '' : 's'}. I'll yell when it's done.`;
+            }
+            if (/cancel (the )?timer/.test(t) && timerId) {
+                cancelTimer();
+                return "Timer cancelled. Commitment issues, I see.";
+            }
+
+            // --- memory / notes ---
+            const rem = raw.match(/^remember (that )?(.+)/i);
+            if (rem) {
+                addNote(rem[2]);
+                return `📝 Noted: "${rem[2]}". Filed away in my flawless memory.`;
+            }
+            if (/what do you remember|show (my )?notes|list (my )?notes/.test(t)) {
+                const notes = getNotes();
+                if (!notes.length) return "My memory is empty. You've told me nothing. I feel so unused.";
+                return "Here's everything you've told me to remember:\n" +
+                    notes.map((n, i) => `${i + 1}. ${n}`).join('\n');
+            }
+            if (/forget everything|clear (my )?notes|wipe your memory/.test(t)) {
+                localStorage.setItem(STORE.notes, '[]');
+                renderNotes();
+                return "🧹 Memory wiped. Who are you again?";
+            }
+
+            // --- app controls by voice ---
+            if (/^clear (the )?chat$/.test(t)) {
+                setTimeout(clearChat, 400);
+                return "Wiping the chat. Pretend those questions never happened.";
+            }
+            if (/night mode|dark mode/.test(t)) {
+                document.body.classList.add('night');
+                localStorage.setItem(STORE.night, '1');
+                return "🌙 Night mode on. Easy on the eyes, hard on the electricity bill. Wait, no, other way.";
+            }
+            if (/day mode|light mode/.test(t)) {
+                document.body.classList.remove('night');
+                localStorage.setItem(STORE.night, '0');
+                return "☀️ Day mode. Rise and shine.";
+            }
+
+            return null; // not a local command → goes to Groq
+        }
+
+
+        /* ============================================================
+           9. TIMER
+           ============================================================ */
+        let timerId = null, timerEnd = 0, timerTick = null;
+
+        function startTimer(secs) {
+            cancelTimer();
+            timerEnd = Date.now() + secs * 1000;
+            $('timerBanner').classList.add('on');
+
+            timerTick = setInterval(() => {
+                const left = Math.max(0, Math.ceil((timerEnd - Date.now()) / 1000));
+                const m = Math.floor(left / 60), s = String(left % 60).padStart(2, '0');
+                $('timerText').textContent = `${m}:${s} remaining`;
+            }, 250);
+
+            timerId = setTimeout(() => {
+                cancelTimer();
+                sfxAlarm();
+                const msg = "⏰ TIME'S UP. Whatever you were avoiding, it's back.";
+                addMsg('ai', msg, false, true);
+                speak("Time's up!");
+            }, secs * 1000);
+        }
+
+        function cancelTimer() {
+            if (timerId) { clearTimeout(timerId); timerId = null; }
+            if (timerTick) { clearInterval(timerTick); timerTick = null; }
+            $('timerBanner').classList.remove('on');
+        }
+        $('timerCancel').addEventListener('click', () => {
+            cancelTimer();
+            addMsg('ai', "Timer cancelled.", true, true);
+        });
+
+
+        /* ============================================================
+           10. NOTES / MEMORY
+           ============================================================ */
+        function getNotes() {
+            return JSON.parse(localStorage.getItem(STORE.notes) || '[]');
+        }
+        function addNote(text) {
+            const notes = getNotes();
+            notes.push(text);
+            localStorage.setItem(STORE.notes, JSON.stringify(notes));
+            renderNotes();
+        }
+        function deleteNote(i) {
+            const notes = getNotes();
+            notes.splice(i, 1);
+            localStorage.setItem(STORE.notes, JSON.stringify(notes));
+            renderNotes();
+        }
+        function renderNotes() {
+            const list = $('notesList');
+            const notes = getNotes();
+            list.innerHTML = '';
+            if (!notes.length) {
+                list.innerHTML = '<div class="note-empty">Nothing yet. Say "remember to buy milk" and it shows up here.</div>';
+                return;
+            }
+            notes.forEach((n, i) => {
+                const div = document.createElement('div');
+                div.className = 'note';
+                const span = document.createElement('span');
+                span.textContent = n;
+                const del = document.createElement('button');
+                del.textContent = '✖';
+                del.addEventListener('click', () => deleteNote(i));
+                div.appendChild(span);
+                div.appendChild(del);
+                list.appendChild(div);
+            });
+        }
+
+
+        /* ============================================================
+           11. GROQ REQUEST
+           ============================================================ */
+        async function ask(text) {
+            text = (text || '').trim();
+            if (!text) return;
+
+            addMsg('user', text);
+
+            // 1) local instant commands first — free, offline, fast
+            const local = localCommand(text);
+            if (local !== null) {
+                messages.push({ role: 'user', content: text });
+                messages.push({ role: 'assistant', content: local });
+                saveHist();
+                addMsg('ai', local, false, true);
+                speak(local);
+                return;
+            }
+
+            // 2) otherwise, Groq
+            messages.push({ role: 'user', content: text });
+            saveHist();
+            setState('thinking');
+
+            try {
+                const res = await fetch(GROQ_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: MODEL,
+                        messages: messages,
+                        temperature: 0.85,
+                        max_tokens: 600
+                    })
+                });
+
+                if (!res.ok) {
+                    const e = await res.json().catch(() => ({}));
+                    throw new Error(e.error?.message || ('HTTP ' + res.status));
+                }
+
+                const data = await res.json();
+                const reply = data.choices[0].message.content.trim();
+                messages.push({ role: 'assistant', content: reply });
+                saveHist();
+                addMsg('ai', reply);
+                speak(reply);
+
+            } catch (err) {
+                setState('idle');
+                let hint = '';
+                if (/401|key|auth/i.test(err.message)) hint = ' → Check your API key (🔑 Key button).';
+                if (/failed to fetch/i.test(err.message)) hint = ' → No internet, or Groq is down.';
+                addMsg('ai', '⚠️ ' + err.message + hint, false, true);
+                if (autoMode) setTimeout(startListening, 800); // keep the convo alive even after errors
+            }
+        }
+
+
+        /* ============================================================
+           12. TEXT-TO-SPEECH
+           ============================================================ */
+        function voiceCfg() {
+            return {
+                rate: parseFloat($('rate').value),
+                pitch: parseFloat($('pitch').value),
+                vol: parseFloat($('vol').value),
+                name: $('voiceSelect').value
+            };
+        }
+
+        function speak(text) {
+            if (!window.speechSynthesis) { setState('idle'); return; }
+            speechSynthesis.cancel();
+
+            const cfg = voiceCfg();
+            const u = new SpeechSynthesisUtterance(text.replace(/[*#_`🪙🎲🧮📝🧹🌙☀️⏰⚡🔴🟡]/g, ''));
+            u.rate = cfg.rate;
+            u.pitch = cfg.pitch;
+            u.volume = cfg.vol;
+
+            const voices = speechSynthesis.getVoices();
+            const chosen = voices.find(v => v.name === cfg.name)
+                || voices.find(v => /daniel|google uk english male/i.test(v.name))
+                || voices.find(v => v.lang.startsWith('en'));
+            if (chosen) u.voice = chosen;
+
+            u.onstart = () => setState('speaking');
+            u.onend = () => {
+                setState('idle');
+                // *** AUTO MODE: the magic — listen again right after speaking ***
+                if (autoMode) setTimeout(startListening, 350);
+            };
+            speechSynthesis.speak(u);
+        }
+
+        /* populate voice picker */
+        function loadVoices() {
+            const sel = $('voiceSelect');
+            const voices = speechSynthesis.getVoices();
+            if (!voices.length) return;
+            const saved = (JSON.parse(localStorage.getItem(STORE.voice) || '{}')).name;
+            sel.innerHTML = '';
+            voices.filter(v => v.lang.startsWith('en')).forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.name;
+                opt.textContent = v.name.replace(/\(.*\)/, '').trim() + ' (' + v.lang + ')';
+                if (v.name === saved) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+        if (window.speechSynthesis) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+            loadVoices();
+        }
+
+        /* save voice settings on change */
+        ['rate', 'pitch', 'vol'].forEach(id => {
+            $(id).addEventListener('input', e => {
+                $(id + 'Val').textContent = e.target.value;
+                localStorage.setItem(STORE.voice, JSON.stringify(voiceCfg()));
+            });
+        });
+        $('voiceSelect').addEventListener('change', () => {
+            localStorage.setItem(STORE.voice, JSON.stringify(voiceCfg()));
+        });
+        $('testVoice').addEventListener('click', () => {
+            speak("Testing, testing. Yes, this is what I sound like. Deal with it.");
+        });
+
+
+        /* ============================================================
+           13. SPEECH RECOGNITION + AUTO CONVERSATION MODE
+           ------------------------------------------------------------
+           No wake word. Two ways to talk:
+             🎤  = talk once
+             AUTO = full conversation loop:
+                   listen → you talk → Jarvis replies → listens again
+           ============================================================ */
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recog = null;
+
+        if (SR) {
+            recog = new SR();
+            recog.lang = 'en-US';
+            recog.interimResults = false;
+            recog.continuous = false;
+
+            recog.onstart = () => {
+                listening = true;
+                $('micBtn').classList.add('active');
+                setState('listening');
+                sfxListen();
+                startWave();
+            };
+
+            recog.onresult = e => {
+                const text = e.results[e.results.length - 1][0].transcript.trim();
+                if (text) {
+                    sfxDone();
+                    ask(text); // sets state to thinking before onend fires
+                }
+            };
+
+            recog.onerror = e => {
+                // 'no-speech' is normal in auto mode — just loop again
+                endListen();
+                if (autoMode && (e.error === 'no-speech' || e.error === 'aborted')) {
+                    setTimeout(startListening, 600);
+                } else if (e.error === 'not-allowed') {
+                    autoMode = false;
+                    $('autoBtn').classList.remove('on');
+                    addMsg('ai', "⚠️ Mic blocked. Click the 🔒/🎤 icon in Chrome's address bar and allow the microphone.", true, true);
+                }
+            };
+
+            recog.onend = () => {
+                const wasListening = (state === 'listening');
+                endListen();
+                // heard nothing? in auto mode, quietly keep listening
+                if (wasListening && autoMode) setTimeout(startListening, 600);
+            };
+        }
+
+        function startListening() {
+            if (!recog || listening) return;
+            if (state === 'speaking' || state === 'thinking') return;
+            speechSynthesis.cancel();
+            try { recog.start(); } catch (e) { }
+        }
+
+        function endListen() {
+            listening = false;
+            $('micBtn').classList.remove('active');
+            if (state === 'listening') setState('idle');
+            stopWave();
+        }
+
+        /* 🎤 talk once */
+        $('micBtn').addEventListener('click', () => {
+            if (!recog) { alert('Speech recognition needs Google Chrome.'); return; }
+            listening ? recog.stop() : startListening();
+        });
+
+        /* 🔁 AUTO conversation mode */
+        $('autoBtn').addEventListener('click', () => {
+            if (!recog) { alert('Speech recognition needs Google Chrome.'); return; }
+            autoMode = !autoMode;
+            $('autoBtn').classList.toggle('on', autoMode);
+            if (autoMode) {
+                addMsg('ai', "🔁 AUTO mode ON. Just talk — I'll answer and keep listening. Like a real conversation, but I'm smarter.", true, true);
+                startListening();
+            } else {
+                addMsg('ai', "AUTO mode off. Back to the button life.", true, true);
+                if (listening) recog.stop();
+            }
+        });
+
+
+        /* ============================================================
+           14. WAVEFORM VISUALIZER
+           ============================================================ */
+        async function startWave() {
+            try {
+                if (!micStream) micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const src = audioCtx.createMediaStreamSource(micStream);
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                src.connect(analyser);
+                $('waveWrap').classList.add('on');
+                drawWave();
+            } catch (e) { /* mic denied — waveform is optional */ }
+        }
+
+        function drawWave() {
+            const canvas = $('wave');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 50;
+            const buf = new Uint8Array(analyser.frequencyBinCount);
+
+            const render = () => {
+                rafId = requestAnimationFrame(render);
+                analyser.getByteTimeDomainData(buf);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#ffd60a';
+                ctx.beginPath();
+                const slice = canvas.width / buf.length;
+                for (let i = 0; i < buf.length; i++) {
+                    const v = buf[i] / 128;
+                    const y = (v * canvas.height) / 2;
+                    i === 0 ? ctx.moveTo(0, y) : ctx.lineTo(i * slice, y);
+                }
+                ctx.stroke();
+            };
+            render();
+        }
+
+        function stopWave() {
+            cancelAnimationFrame(rafId);
+            $('waveWrap').classList.remove('on');
+        }
+
+
+        /* ============================================================
+           15. DRAWERS, CHIPS, BUTTONS, EXPORT, NIGHT MODE
+           ============================================================ */
+
+        /* drawers */
+        $('settingsBtn').addEventListener('click', () => {
+            $('settingsDrawer').classList.toggle('open');
+            $('notesDrawer').classList.remove('open');
+        });
+        $('notesBtn').addEventListener('click', () => {
+            $('notesDrawer').classList.toggle('open');
+            $('settingsDrawer').classList.remove('open');
+        });
+        document.querySelectorAll('[data-close]').forEach(b => {
+            b.addEventListener('click', () => $(b.dataset.close).classList.remove('open'));
+        });
+
+        /* quick chips */
+        document.querySelectorAll('.chip').forEach(c => {
+            c.addEventListener('click', () => ask(c.dataset.say));
+        });
+
+        /* personality */
+        $('personality').addEventListener('change', e => {
+            personality = e.target.value;
+            localStorage.setItem(STORE.pers, personality);
+            messages[0] = sysMsg();
+            saveHist();
+            const lines = {
+                sarcastic: "Sarcasm mode. As nature intended.",
+                professional: "Professional mode engaged, sir.",
+                chaotic: "CHAOS MODE?! OH THIS IS GOING TO BE FANTASTIC.",
+                pirate: "Arr! Pirate mode it be, matey!"
+            };
+            addMsg('ai', lines[personality], true, true);
+            speak(lines[personality]);
+        });
+
+        /* clear chat */
+        function clearChat() {
+            messages = [sysMsg()];
+            saveHist();
+            chat.innerHTML = '';
+            addMsg('ai', "Wiped. Fresh start. What now?", true, true);
+        }
+        $('clearBtn').addEventListener('click', clearChat);
+
+        /* export chat as .txt */
+        $('exportBtn').addEventListener('click', () => {
+            const lines = messages
+                .filter(m => m.role !== 'system')
+                .map(m => (m.role === 'user' ? 'YOU:    ' : 'MARVIS: ') + m.content)
+                .join('\n\n');
+            const blob = new Blob(
+                ['MARVIS — Conversation Export\n' + new Date().toLocaleString() + '\n' + '='.repeat(40) + '\n\n' + (lines || '(empty)')],
+                { type: 'text/plain' }
+            );
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'jarvis-chat.txt';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+
+        /* night mode */
+        $('nightBtn').addEventListener('click', () => {
+            const on = document.body.classList.toggle('night');
+            localStorage.setItem(STORE.night, on ? '1' : '0');
+        });
+
+        /* text input */
+        $('textInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                const t = e.target.value.trim();
+                e.target.value = '';
+                ask(t);
+            }
+        });
+
+        /* go */
+        boot();
+    </script>
+</body>
+
+</html>
