@@ -1,0 +1,45 @@
+# MARVIS server — serves index.html and relays chat requests to Hack Club AI.
+# Browsers block direct calls to ai.hackclub.com (CORS), so we pass them through here.
+# Run:  python3 server.py   then open  http://localhost:8934
+
+import json
+import urllib.request
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+HACKCLUB = 'https://ai.hackclub.com/proxy/v1/chat/completions'
+PORT = 8934
+
+
+class Handler(SimpleHTTPRequestHandler):
+    def do_POST(self):
+        if self.path != '/api/chat':
+            self.send_error(404)
+            return
+
+        body = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+        req = urllib.request.Request(HACKCLUB, data=body, headers={
+            'Content-Type': 'application/json',
+            'Authorization': self.headers.get('Authorization', ''),
+        })
+        try:
+            with urllib.request.urlopen(req, timeout=90) as res:
+                data = res.read()
+                status = res.status
+        except urllib.error.HTTPError as e:
+            data = e.read()
+            status = e.code
+        except Exception as e:
+            data = json.dumps({'error': {'message': str(e)}}).encode()
+            status = 502
+
+        self.send_response(status)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(data)
+
+    def log_message(self, fmt, *args):
+        print(self.address_string(), '-', fmt % args)
+
+
+print(f'MARVIS running → http://localhost:{PORT}')
+HTTPServer(('localhost', PORT), Handler).serve_forever()
