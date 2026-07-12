@@ -3,33 +3,24 @@
 # Run:  python3 server.py   then open  http://localhost:8934
 
 import json
-import urllib.request
-import urllib.parse
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import os
+import urllib.request
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 HACKCLUB = 'https://ai.hackclub.com/proxy/v1/chat/completions'
 PORT = 8934
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 class Handler(BaseHTTPRequestHandler):
+    # any POST is a chat request — no way to 404 by path
     def do_POST(self):
-        if self.path != '/api/chat':
-            self.send_response(404)
-            self.send_header('Content-Type', 'application/json')
-            self.end_headers()
-            self.wfile.write(json.dumps({'error': 'Not found'}).encode())
-            return
-
+        body = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+        req = urllib.request.Request(HACKCLUB, data=body, headers={
+            'Content-Type': 'application/json',
+            'Authorization': self.headers.get('Authorization', ''),
+        })
         try:
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length)
-
-            req = urllib.request.Request(HACKCLUB, data=body, headers={
-                'Content-Type': 'application/json',
-                'Authorization': self.headers.get('Authorization', ''),
-            })
-
             with urllib.request.urlopen(req, timeout=90) as res:
                 data = res.read()
                 status = res.status
@@ -41,36 +32,29 @@ class Handler(BaseHTTPRequestHandler):
             status = 502
 
         # Hack Club sometimes replies with plain text or nothing at all
-        # (e.g. "Authentication failed" on a bad key) — make sure the
-        # browser always gets valid JSON.
+        # (e.g. "Authentication failed") — always hand the browser valid JSON.
         try:
             json.loads(data)
         except (ValueError, TypeError):
             text = data.decode('utf-8', 'replace').strip() or ('HTTP ' + str(status))
             data = json.dumps({'error': {'message': text}}).encode()
 
-        self.send_response(status)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', str(len(data)))
-        self.end_headers()
-        self.wfile.write(data)
+        self.reply(status, data, 'application/json')
 
     def do_GET(self):
-        # Serve index.html for everything else
-        if self.path == '/' or self.path == '':
-            self.path = '/index.html'
-
         try:
-            with open('index.html', 'rb') as f:
-                self.send_response(200)
-                self.send_header('Content-Type', 'text/html')
-                self.end_headers()
-                self.wfile.write(f.read())
+            with open(os.path.join(HERE, 'index.html'), 'rb') as f:
+                self.reply(200, f.read(), 'text/html')
         except FileNotFoundError:
-            self.send_response(404)
-            self.send_header('Content-Type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(b'Not found')
+            self.reply(404, b'index.html not found next to server.py', 'text/plain')
+
+    def reply(self, status, data, ctype):
+        self.send_response(status)
+        self.send_header('Content-Type', ctype)
+        self.send_header('Content-Length', str(len(data)))
+        self.send_header('Cache-Control', 'no-store')  # never serve a stale page
+        self.end_headers()
+        self.wfile.write(data)
 
     def log_message(self, fmt, *args):
         print(self.address_string(), '-', fmt % args)
