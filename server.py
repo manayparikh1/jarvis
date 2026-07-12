@@ -40,8 +40,18 @@ class Handler(BaseHTTPRequestHandler):
             data = json.dumps({'error': {'message': str(e)}}).encode()
             status = 502
 
+        # Hack Club sometimes replies with plain text or nothing at all
+        # (e.g. "Authentication failed" on a bad key) — make sure the
+        # browser always gets valid JSON.
+        try:
+            json.loads(data)
+        except (ValueError, TypeError):
+            text = data.decode('utf-8', 'replace').strip() or ('HTTP ' + str(status))
+            data = json.dumps({'error': {'message': text}}).encode()
+
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(data)))
         self.end_headers()
         self.wfile.write(data)
 
