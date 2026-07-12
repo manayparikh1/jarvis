@@ -13,72 +13,75 @@
         }
 
         body {
-            font-family: "Comic Sans MS", "Chalkboard SE", cursive;
-            background: #fff3bf;
-            color: #3a1010;
+            font-family: Georgia, serif;
+            background: #f4efe6;
+            color: #2b2b2b;
             height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
         body.night {
-            background: #2b0a0a;
-            color: #ffe9a8;
+            background: #20241f;
+            color: #e8e4d8;
         }
 
-        button {
-            font-family: inherit;
-            cursor: pointer;
-        }
-
+        button,
         input,
         select {
             font-family: inherit;
+            font-size: 1rem;
+        }
+
+        button {
+            cursor: pointer;
         }
 
         /* setup */
         #setup {
             position: fixed;
             inset: 0;
-            background: #ffd60a;
+            background: #f4efe6;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 16px;
             padding: 24px;
-            z-index: 10;
             text-align: center;
+            z-index: 10;
         }
 
         #setup h1 {
-            font-size: 3rem;
-            color: #d62828;
+            font-size: 2.5rem;
+            color: #38614a;
         }
 
         #setup p {
             max-width: 420px;
-            color: #6e0f0f;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        #setup a {
+            color: #38614a;
         }
 
         #setup input {
             width: 100%;
             max-width: 380px;
-            padding: 12px;
-            font-size: 1rem;
-            border: 3px solid #d62828;
-            border-radius: 10px;
+            padding: 10px;
+            border: 1px solid #b0a893;
+            border-radius: 4px;
+            background: #fffdf7;
         }
 
         #setup button {
-            padding: 12px 30px;
-            font-size: 1rem;
-            font-weight: bold;
-            background: #d62828;
-            color: #ffd60a;
+            padding: 10px 28px;
+            background: #38614a;
+            color: #fffdf7;
             border: none;
-            border-radius: 10px;
+            border-radius: 4px;
         }
 
         #setup button:disabled {
@@ -92,42 +95,54 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 8px;
-            padding: 10px 14px;
-            background: #d62828;
-            color: #ffd60a;
+            padding: 12px 16px;
+            border-bottom: 1px solid #d6cfbf;
         }
 
         header h1 {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
 
         header button {
-            background: #ffd60a;
-            color: #6e0f0f;
-            border: none;
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-weight: bold;
+            background: none;
+            border: 1px solid #b0a893;
+            border-radius: 4px;
+            padding: 5px 10px;
+            color: inherit;
+        }
+
+        header button:hover {
+            background: #e9e2d2;
+        }
+
+        body.night header button:hover {
+            background: #333830;
+        }
+
+        header button.on {
+            background: #38614a;
+            color: #fffdf7;
+            border-color: #38614a;
         }
 
         #dot {
             display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: #f0c9c9;
+            background: #c9c2b1;
         }
 
         #dot.listening {
-            background: #4ade4a;
+            background: #4a9e5c;
         }
 
         #dot.thinking {
-            background: #ffd60a;
+            background: #c9a23f;
         }
 
         #dot.speaking {
-            background: #ff9d00;
+            background: #b06038;
         }
 
         /* chat */
@@ -141,37 +156,36 @@
         }
 
         .msg {
-            max-width: 80%;
+            max-width: 75%;
             padding: 10px 14px;
-            border-radius: 14px;
-            line-height: 1.5;
+            border-radius: 8px;
+            line-height: 1.6;
             white-space: pre-wrap;
         }
 
         .msg.user {
             align-self: flex-end;
-            background: #d62828;
-            color: #ffd60a;
+            background: #38614a;
+            color: #fffdf7;
         }
 
         .msg.ai {
             align-self: flex-start;
-            background: #fffbe6;
-            border: 2px solid #d62828;
+            background: #fffdf7;
+            border: 1px solid #d6cfbf;
         }
 
         body.night .msg.ai {
-            background: #3a1212;
-            color: #ffe9a8;
+            background: #2a2f28;
+            border-color: #444a41;
         }
 
         /* timer */
         #timerBanner {
             display: none;
-            background: #6e0f0f;
-            color: #ffd60a;
             text-align: center;
             padding: 8px;
+            border-top: 1px solid #d6cfbf;
             font-weight: bold;
         }
 
@@ -179,63 +193,11 @@
             display: block;
         }
 
-        /* chips */
-        #chipRow {
-            display: flex;
-            gap: 8px;
-            padding: 10px 14px;
-            overflow-x: auto;
-        }
-
-        .chip {
-            flex-shrink: 0;
-            background: #ffd60a;
-            border: 2px solid #d62828;
-            color: #6e0f0f;
-            border-radius: 16px;
-            padding: 5px 12px;
-            font-weight: bold;
-        }
-
-        /* input row */
-        #controls {
-            display: flex;
-            gap: 8px;
-            padding: 12px 14px;
-        }
-
-        #textInput {
-            flex: 1;
-            padding: 12px;
-            font-size: 1rem;
-            border: 3px solid #d62828;
-            border-radius: 10px;
-        }
-
-        #controls button {
-            padding: 0 16px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            background: #d62828;
-            color: #ffd60a;
-            border: none;
-            border-radius: 10px;
-        }
-
-        #controls button.on {
-            background: #1f7a1f;
-        }
-
-        /* settings + notes panels */
+        /* panels */
         .panel {
             display: none;
-            padding: 12px 14px;
-            background: #fffbe6;
-            border-top: 3px solid #d62828;
-        }
-
-        body.night .panel {
-            background: #3a1212;
+            padding: 12px 16px;
+            border-top: 1px solid #d6cfbf;
         }
 
         .panel.open {
@@ -248,24 +210,86 @@
         }
 
         .panel select {
-            padding: 6px;
-            border: 2px solid #d62828;
-            border-radius: 8px;
+            padding: 5px;
+            border: 1px solid #b0a893;
+            border-radius: 4px;
             margin-right: 14px;
+            background: #fffdf7;
         }
 
         .note {
             display: flex;
             justify-content: space-between;
             gap: 8px;
-            padding: 6px 0;
+            padding: 5px 0;
         }
 
         .note button {
             background: none;
             border: none;
-            color: #d62828;
-            font-weight: bold;
+            color: #a04030;
+        }
+
+        /* chips */
+        #chipRow {
+            display: flex;
+            gap: 8px;
+            padding: 10px 16px;
+            overflow-x: auto;
+            border-top: 1px solid #d6cfbf;
+        }
+
+        .chip {
+            flex-shrink: 0;
+            background: none;
+            border: 1px solid #b0a893;
+            border-radius: 14px;
+            padding: 4px 12px;
+            color: inherit;
+            font-size: 0.9rem;
+        }
+
+        .chip:hover {
+            background: #e9e2d2;
+        }
+
+        body.night .chip:hover {
+            background: #333830;
+        }
+
+        /* input row */
+        #controls {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+        }
+
+        #textInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #b0a893;
+            border-radius: 4px;
+            background: #fffdf7;
+        }
+
+        body.night #textInput,
+        body.night .panel select,
+        body.night #setup input {
+            background: #2a2f28;
+            color: #e8e4d8;
+            border-color: #444a41;
+        }
+
+        #controls button {
+            padding: 0 16px;
+            background: #38614a;
+            color: #fffdf7;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #controls button.on {
+            background: #b06038;
         }
     </style>
 </head>
@@ -278,7 +302,7 @@
                 target="_blank">ai.hackclub.com/keys</a>
             — it stays in your browser and only gets sent to Hack Club.</p>
         <input id="keyInput" type="password" placeholder="paste your key here">
-        <button id="activateBtn" disabled>START</button>
+        <button id="activateBtn" disabled>Start</button>
     </div>
 
     <header>
@@ -286,6 +310,7 @@
         <div>
             <button id="settingsBtn">Settings</button>
             <button id="notesBtn">Memory</button>
+            <button id="muteBtn">Sound on</button>
             <button id="nightBtn">Night</button>
             <button id="clearBtn">Clear</button>
             <button id="resetKey">Key</button>
@@ -314,19 +339,19 @@
     </div>
 
     <div id="chipRow">
-        <button class="chip" data-say="tell me a joke">😂 Joke</button>
-        <button class="chip" data-say="tell me a fun fact">🧠 Fun fact</button>
-        <button class="chip" data-say="roast me gently">🔥 Roast me</button>
-        <button class="chip" data-say="flip a coin">🪙 Coin</button>
-        <button class="chip" data-say="roll a dice">🎲 Dice</button>
-        <button class="chip" data-say="what time is it">🕐 Time</button>
-        <button class="chip" data-say="set timer 5 minutes">⏰ Timer</button>
+        <button class="chip" data-say="tell me a joke">Joke</button>
+        <button class="chip" data-say="tell me a fun fact">Fun fact</button>
+        <button class="chip" data-say="roast me gently">Roast me</button>
+        <button class="chip" data-say="flip a coin">Coin</button>
+        <button class="chip" data-say="roll a dice">Dice</button>
+        <button class="chip" data-say="what time is it">Time</button>
+        <button class="chip" data-say="set timer 5 minutes">Timer</button>
     </div>
 
     <div id="controls">
-        <button id="autoBtn" title="hands-free conversation">AUTO</button>
+        <button id="autoBtn" title="hands-free conversation">Auto</button>
         <input id="textInput" placeholder="Type or hit the mic and talk...">
-        <button id="micBtn">🎤</button>
+        <button id="micBtn">Mic</button>
     </div>
 
     <script>
@@ -341,16 +366,16 @@
             'openai/gpt-oss-120b:free',
             'nousresearch/hermes-3-llama-3.1-405b:free'
         ];
-
         const PERSONALITIES = {
-            sarcastic: "You are MARVIS, a sharp, sarcastic AI assistant. Helpful and correct, but with dry wit and playful jabs. Keep answers short (1-3 sentences) unless asked for detail. Never mean-spirited.",
-            professional: "You are MARVIS, a calm, professional AI assistant. Concise and courteous, occasionally saying 'sir'. Keep answers short unless asked for more.",
-            chaotic: "You are MARVIS, a dramatic, theatrical AI assistant. Correct answers, maximum energy, CAPS for emphasis. Keep it punchy.",
-            pirate: "You are MARVIS, an AI assistant who talks like a pirate captain. Correct answers, all in pirate speak. Keep it short."
+            sarcastic: "You are MARVIS, a sarcastic AI assistant with a sharp tongue. Helpful, correct and sarcastic. Provide short answers (1-3 sentences) unless you are requested to elaborate. Always polite.",
+            professional: "You are MARVIS, a calm and professional AI assistant. Courteous and brief. Use the word 'sir' from time to time. Answer briefly unless asked otherwise.",
+            chaotic: "You are MARVIS, a theatrical and dramatic AI assistant. Provide correct answers with full enthusiasm. Use caps where appropriate.",
+            pirate: "You are MARVIS, an AI assistant that speaks in the voice of a pirate captain. Provide correct answers in pirate language. Brief."
         };
 
         let apiKey = localStorage.getItem('marvis_key') || '';
         let personality = localStorage.getItem('marvis_pers') || 'sarcastic';
+        let muted = localStorage.getItem('marvis_mute') === '1';
         let messages = JSON.parse(localStorage.getItem('marvis_hist') || 'null') || [sysMsg()];
         let state = 'idle';
         let autoMode = false;
@@ -366,6 +391,7 @@
             $('personality').value = personality;
             if (localStorage.getItem('marvis_night') === '1') document.body.classList.add('night');
             renderNotes();
+            showMute();
             if (apiKey) {
                 $('setup').style.display = 'none';
                 messages.filter(m => m.role !== 'system')
@@ -419,16 +445,16 @@
             if (/what('s| is) (the )?date|what day is/.test(t))
                 return "Today is " + new Date().toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }) + ".";
             if (/flip a coin|heads or tails/.test(t))
-                return "🪙 " + (Math.random() < 0.5 ? "Heads." : "Tails.");
+                return (Math.random() < 0.5 ? "Heads." : "Tails.");
             if (/roll (a |the )?(die|dice)/.test(t))
-                return "🎲 You rolled a " + (1 + Math.floor(Math.random() * 6)) + ".";
+                return "You rolled a " + (1 + Math.floor(Math.random() * 6)) + ".";
 
             const tm = t.match(/timer\s+(?:for\s+)?(\d+)\s*(second|sec|minute|min|hour)s?/);
             if (tm) {
                 const n = parseInt(tm[1]);
                 const secs = tm[2].startsWith('h') ? n * 3600 : tm[2].startsWith('m') ? n * 60 : n;
                 startTimer(secs);
-                return "⏰ Timer set for " + n + " " + tm[2] + (n === 1 ? '' : 's') + ".";
+                return "Timer set for " + n + " " + tm[2] + (n === 1 ? '' : 's') + ".";
             }
             if (/cancel (the )?timer/.test(t) && timerId) {
                 cancelTimer();
@@ -441,7 +467,7 @@
                 notes.push(rem[2]);
                 localStorage.setItem('marvis_notes', JSON.stringify(notes));
                 renderNotes();
-                return "📝 Noted: " + rem[2];
+                return "Noted: " + rem[2];
             }
             if (/what do you remember|show notes/.test(t)) {
                 const notes = getNotes();
@@ -455,15 +481,29 @@
                 return "Memory wiped.";
             }
 
+            if (/^(mute|stop talking|shut up)$/.test(t)) {
+                muted = true;
+                localStorage.setItem('marvis_mute', '1');
+                speechSynthesis.cancel();
+                showMute();
+                return "Fine, I'll be quiet.";
+            }
+            if (/^unmute$/.test(t)) {
+                muted = false;
+                localStorage.setItem('marvis_mute', '0');
+                showMute();
+                return "I'm back.";
+            }
+
             if (/night mode|dark mode/.test(t)) {
                 document.body.classList.add('night');
                 localStorage.setItem('marvis_night', '1');
-                return "🌙 Night mode on.";
+                return "Night mode on.";
             }
             if (/day mode|light mode/.test(t)) {
                 document.body.classList.remove('night');
                 localStorage.setItem('marvis_night', '0');
-                return "☀️ Day mode on.";
+                return "Day mode on.";
             }
 
             return null;
@@ -482,7 +522,7 @@
             }, 250);
             timerId = setTimeout(() => {
                 cancelTimer();
-                addMsg('ai', "⏰ TIME'S UP!");
+                addMsg('ai', "TIME'S UP!");
                 speak("Time's up!");
             }, secs * 1000);
         }
@@ -505,7 +545,7 @@
             notes.forEach((n, i) => {
                 const div = document.createElement('div');
                 div.className = 'note';
-                div.innerHTML = '<span></span><button>✖</button>';
+                div.innerHTML = '<span></span><button>x</button>';
                 div.querySelector('span').textContent = n;
                 div.querySelector('button').onclick = () => {
                     notes.splice(i, 1);
@@ -565,9 +605,14 @@
 
         // text to speech
         function speak(text) {
-            if (!window.speechSynthesis) { setState('idle'); return; }
+            // muted = read replies yourself, but Auto keeps listening
+            if (muted || !window.speechSynthesis) {
+                setState('idle');
+                if (muted && autoMode) setTimeout(startListening, 350);
+                return;
+            }
             speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text.replace(/[*#_`🪙🎲📝🌙☀️⏰]/g, ''));
+            const u = new SpeechSynthesisUtterance(text.replace(/[*#_`]/g, ''));
             const voices = speechSynthesis.getVoices();
             const chosen = voices.find(v => v.name === $('voiceSelect').value)
                 || voices.find(v => /daniel/i.test(v.name))
@@ -601,7 +646,7 @@
         }
         $('voiceSelect').onchange = e => localStorage.setItem('marvis_voice', e.target.value);
 
-        // speech recognition — mic for one question, AUTO for a back-and-forth loop
+        // speech recognition — mic for one question, Auto for a back-and-forth loop
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recog = null;
 
@@ -625,7 +670,7 @@
                 } else if (e.error === 'not-allowed') {
                     autoMode = false;
                     $('autoBtn').classList.remove('on');
-                    addMsg('ai', "⚠️ Mic blocked — allow the microphone in your browser.");
+                    addMsg('ai', "Mic blocked — allow the microphone in your browser.");
                 }
             };
             recog.onend = () => {
@@ -656,7 +701,7 @@
             if (!recog) { alert('Speech recognition needs Chrome.'); return; }
             autoMode = !autoMode;
             $('autoBtn').classList.toggle('on', autoMode);
-            addMsg('ai', autoMode ? "AUTO mode on — just talk." : "AUTO mode off.");
+            addMsg('ai', autoMode ? "Auto mode on — just talk." : "Auto mode off.");
             if (autoMode) startListening();
             else if (listening) recog.stop();
         };
@@ -669,6 +714,17 @@
         $('notesBtn').onclick = () => {
             $('notesPanel').classList.toggle('open');
             $('settingsPanel').classList.remove('open');
+        };
+
+        function showMute() {
+            $('muteBtn').textContent = muted ? 'Muted' : 'Sound on';
+            $('muteBtn').classList.toggle('on', muted);
+        }
+        $('muteBtn').onclick = () => {
+            muted = !muted;
+            localStorage.setItem('marvis_mute', muted ? '1' : '0');
+            if (muted) speechSynthesis.cancel();
+            showMute();
         };
 
         $('personality').onchange = e => {
