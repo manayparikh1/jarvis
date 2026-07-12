@@ -1,0 +1,12 @@
+# Netlify config for MARVIS.
+# The page POSTs to /api/chat; send that to the serverless proxy function.
+# index.html is served as a plain static file.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
